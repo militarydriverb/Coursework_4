@@ -17,20 +17,44 @@ class Command(BaseCommand):
         mailing_id = options.get('mailing_id')
 
         if mailing_id:
-            try:
-                mailing = Mailing.objects.get(id=mailing_id)
-                send_mailing(mailing_id)
+            # Отправка конкретной рассылки
+            result = send_mailing(mailing_id)
+
+            if result['success']:
                 self.stdout.write(
-                    self.style.SUCCESS(f'Рассылка {mailing_id} успешно отправлена')
+                    self.style.SUCCESS(f'✓ {result["message"]}')
                 )
-            except Mailing.DoesNotExist:
+            else:
                 self.stdout.write(
-                    self.style.ERROR(f'Рассылка с ID {mailing_id} не найдена')
+                    self.style.ERROR(f'✗ {result["message"]}')
                 )
         else:
+            # Отправка всех активных рассылок
             mailings = Mailing.objects.exclude(status='Завершена')
-            for mailing in mailings:
-                send_mailing(mailing.id)
+
+            if not mailings.exists():
                 self.stdout.write(
-                    self.style.SUCCESS(f'Рассылка {mailing.id} отправлена')
+                    self.style.WARNING('Нет активных рассылок для отправки')
                 )
+                return
+
+            total_sent = 0
+            total_errors = 0
+
+            for mailing in mailings:
+                result = send_mailing(mailing.id)
+
+                if result['success']:
+                    self.stdout.write(
+                        self.style.SUCCESS(f'✓ Рассылка {mailing.id}: {result["message"]}')
+                    )
+                    total_sent += 1
+                else:
+                    self.stdout.write(
+                        self.style.ERROR(f'✗ Рассылка {mailing.id}: {result["message"]}')
+                    )
+                    total_errors += 1
+
+            self.stdout.write(
+                self.style.SUCCESS(f'\nИтого: Отправлено: {total_sent}, Ошибок: {total_errors}')
+            )

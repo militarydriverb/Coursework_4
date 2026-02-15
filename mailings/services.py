@@ -9,16 +9,34 @@ def send_mailing(mailing_id):
 
     Args:
         mailing_id: ID рассылки
+
+    Returns:
+        dict: Результат отправки с информацией об успехе/ошибке
     """
     try:
         mailing = Mailing.objects.get(id=mailing_id)
         mailing.update_status()
 
-        if mailing.status == 'Завершена':
-            return
+        # Проверка: можно ли отправлять рассылку сейчас
+        if not mailing.can_send():
+            current_status = mailing.get_current_status()
+            return {
+                'success': False,
+                'message': f'Рассылка не может быть отправлена. Текущий статус: {current_status}. '
+                          f'Отправка возможна только между {mailing.start_time} и {mailing.end_time}.'
+            }
 
         recipients = mailing.recipients.all()
+
+        if not recipients.exists():
+            return {
+                'success': False,
+                'message': 'У рассылки нет получателей.'
+            }
+
         message = mailing.message
+        success_count = 0
+        error_count = 0
 
         for recipient in recipients:
             try:
@@ -35,6 +53,7 @@ def send_mailing(mailing_id):
                     status='Успешно',
                     server_response=f'Письмо успешно отправлено на {recipient.email}'
                 )
+                success_count += 1
 
             except Exception as e:
                 MailingAttempt.objects.create(
@@ -42,10 +61,20 @@ def send_mailing(mailing_id):
                     status='Не успешно',
                     server_response=str(e)
                 )
+                error_count += 1
 
-        if mailing.status == 'Создана':
-            mailing.status = 'Запущена'
-            mailing.save()
+        # Обновляем статус после отправки
+        mailing.update_status()
+
+        return {
+            'success': True,
+            'message': f'Рассылка выполнена. Успешно: {success_count}, Ошибок: {error_count}',
+            'success_count': success_count,
+            'error_count': error_count
+        }
 
     except Mailing.DoesNotExist:
-        pass
+        return {
+            'success': False,
+            'message': f'Рассылка с ID {mailing_id} не найдена.'
+        }
