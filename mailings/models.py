@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
 
 class Recipient(models.Model):
@@ -8,6 +9,7 @@ class Recipient(models.Model):
     email = models.EmailField(unique=True, verbose_name='Email')
     full_name = models.CharField(max_length=255, verbose_name='Ф.И.О.')
     comment = models.TextField(blank=True, verbose_name='Комментарий')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Владелец')
 
     class Meta:
         verbose_name = 'Получатель'
@@ -21,6 +23,7 @@ class Message(models.Model):
     """Сообщение для рассылки"""
     subject = models.CharField(max_length=255, verbose_name='Тема письма')
     body = models.TextField(verbose_name='Тело письма')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Владелец')
 
     class Meta:
         verbose_name = 'Сообщение'
@@ -43,6 +46,8 @@ class Mailing(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Создана', verbose_name='Статус')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='Сообщение')
     recipients = models.ManyToManyField(Recipient, verbose_name='Получатели')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Владелец')
+    is_active = models.BooleanField(default=True, verbose_name='Активна')
 
     class Meta:
         verbose_name = 'Рассылка'

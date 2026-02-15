@@ -1,0 +1,30 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<h1>Регистрация</h1>
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div>
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                <small class="helptext">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+                <ul class="errorlist">
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn">Зарегистрироваться</button>
+</form>
+<div class="links">
+    <a href="{% url 'users:login' %}">Уже есть аккаунт? Войти</a>
+</div>
+{% endblock %}
