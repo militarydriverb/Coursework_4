@@ -1,0 +1,64 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="{{ form.start_time.id_for_label }}">{{ form.start_time.label }}</label>
+        {{ form.start_time }}
+        {% if form.start_time.errors %}
+            <div style="color: red;">{{ form.start_time.errors }}</div>
+        {% endif %}
+        <small style="color: #6c757d;">Формат: ГГГГ-ММ-ДД ЧЧ:ММ</small>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.end_time.id_for_label }}">{{ form.end_time.label }}</label>
+        {{ form.end_time }}
+        {% if form.end_time.errors %}
+            <div style="color: red;">{{ form.end_time.errors }}</div>
+        {% endif %}
+        <small style="color: #6c757d;">Формат: ГГГГ-ММ-ДД ЧЧ:ММ</small>
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+        {{ form.message }}
+        {% if form.message.errors %}
+            <div style="color: red;">{{ form.message.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.recipients.id_for_label }}">{{ form.recipients.label }}</label>
+        {{ form.recipients }}
+        {% if form.recipients.errors %}
+            <div style="color: red;">{{ form.recipients.errors }}</div>
+        {% endif %}
+        <small style="color: #6c757d;">Используйте Ctrl (Cmd) для выбора нескольких получателей</small>
+    </div>
+
+    <div class="form-group">
+        <label style="display: inline-flex; align-items: center; cursor: pointer;">
+            {{ form.is_active }}
+            <span style="margin-left: 5px;">{{ form.is_active.label }}</span>
+        </label>
+        {% if form.is_active.errors %}
+            <div style="color: red;">{{ form.is_active.errors }}</div>
+        {% endif %}
+    </div>
+
+    {% if form.non_field_errors %}
+        <div style="color: red; margin-bottom: 15px;">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="actions">
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a href="{% url 'mailings:mailing_list' %}" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+{% endblock %}

@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
 import secrets
-from .forms import RegisterForm, LoginForm, PasswordResetRequestForm
+from .forms import RegisterForm, LoginForm, PasswordResetRequestForm, UserProfileForm
 from .models import User
 
 
@@ -60,7 +60,7 @@ def login_view(request):
 
             try:
                 user = User.objects.get(email=email)
-                user = authenticate(request, username=user.username, password=password)
+                user = authenticate(request, email=email, password=password)
 
                 if user is not None:
                     if user.is_blocked:
@@ -158,3 +158,23 @@ def password_reset_confirm(request, token):
     except User.DoesNotExist:
         messages.error(request, 'Неверная ссылка восстановления.')
         return redirect('users:login')
+
+
+@login_required
+def profile_view(request):
+    """Просмотр профиля пользователя"""
+    return render(request, 'users/profile.html', {'user': request.user})
+
+
+@login_required
+def profile_edit(request):
+    """Редактирование профиля пользователя"""
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Профиль успешно обновлен!')
+            return redirect('users:profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+    return render(request, 'users/profile_edit.html', {'form': form})

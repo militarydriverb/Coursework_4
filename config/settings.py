@@ -11,21 +11,26 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables
+load_dotenv(override=True)
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o1n9!d_=e7+h@-$p%gyhb(i#@24=zsv%9cbw3zp9hh8)b$1(5#'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -78,16 +83,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import os
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mailings_db',
-        'USER': 'postgres',
-        'PASSWORD': 'Qwerty123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'mailings_db'),
+        'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
         'OPTIONS': {
             'client_encoding': 'UTF8',
         },
@@ -135,22 +138,46 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@mailings.local'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER if EMAIL_HOST_USER else 'noreply@mailings.local')
+SERVER_EMAIL = os.getenv('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
 
 # Auth settings
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'mailings:home'
 LOGOUT_REDIRECT_URL = 'users:login'
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # Cache settings
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
-        'TIMEOUT': 300,  # 5 минут
+CACHE_ENABLED = os.getenv('CACHE_ENABLED', 'True') == 'True'
+
+if CACHE_ENABLED and os.getenv('REDIS_HOST'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': os.getenv('REDIS_HOST', 'redis://localhost:6379/1'),
+            'TIMEOUT': 300,  # 5 минут
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+            'TIMEOUT': 300,  # 5 минут
+        }
+    }
 
 # Cache middleware
 CACHE_MIDDLEWARE_ALIAS = 'default'

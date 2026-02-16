@@ -51,3 +51,17 @@ class PasswordResetRequestForm(forms.Form):
         label='Email',
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'})
     )
+
+
+class UserProfileForm(forms.ModelForm):
+    """Форма редактирования профиля пользователя"""
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя пользователя'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Имя'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Фамилия'}),
+        }

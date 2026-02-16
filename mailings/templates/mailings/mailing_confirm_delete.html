@@ -1,0 +1,22 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Удалить рассылку{% endblock %}
+{% block page_title %}Удалить рассылку{% endblock %}
+
+{% block content %}
+<div style="background: #fff3cd; padding: 20px; border-radius: 5px; border: 1px solid #ffeaa7;">
+    <h3>Вы уверены, что хотите удалить рассылку?</h3>
+    <p style="margin: 15px 0;"><strong>ID:</strong> {{ mailing.id }}</p>
+    <p><strong>Статус:</strong> {{ mailing.status }}</p>
+    <p><strong>Сообщение:</strong> {{ mailing.message.subject }}</p>
+    <p><strong>Период:</strong> {{ mailing.start_time|date:"d.m.Y H:i" }} - {{ mailing.end_time|date:"d.m.Y H:i" }}</p>
+</div>
+
+<form method="post" style="margin-top: 20px;">
+    {% csrf_token %}
+    <div class="actions">
+        <button type="submit" class="btn btn-danger">Да, удалить</button>
+        <a href="{% url 'mailings:mailing_list' %}" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+{% endblock %}

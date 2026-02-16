@@ -1,0 +1,37 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Мои сообщения{% endblock %}
+{% block page_title %}Мои сообщения{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'mailings:message_create' %}" class="btn btn-success">+ Создать сообщение</a>
+</div>
+
+{% if messages %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Тема</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for message in messages %}
+        <tr>
+            <td>{{ message.id }}</td>
+            <td>{{ message.subject }}</td>
+            <td class="actions">
+                <a href="{% url 'mailings:message_detail' message.pk %}" class="btn btn-primary">Просмотр</a>
+                <a href="{% url 'mailings:message_update' message.pk %}" class="btn btn-secondary">Изменить</a>
+                <a href="{% url 'mailings:message_delete' message.pk %}" class="btn btn-danger">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>У вас пока нет сообщений. Создайте первое сообщение!</p>
+{% endif %}
+{% endblock %}

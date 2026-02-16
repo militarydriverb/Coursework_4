@@ -1,0 +1,24 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Клиент: {{ recipient.full_name }}{% endblock %}
+{% block page_title %}Клиент: {{ recipient.full_name }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'mailings:recipient_list' %}" class="btn btn-secondary">← Назад к списку</a>
+    <a href="{% url 'mailings:recipient_update' recipient.pk %}" class="btn btn-primary">Изменить</a>
+    <a href="{% url 'mailings:recipient_delete' recipient.pk %}" class="btn btn-danger">Удалить</a>
+</div>
+
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
+    <h3>Информация о клиенте:</h3>
+
+    <p style="margin: 10px 0;"><strong>Ф.И.О.:</strong> {{ recipient.full_name }}</p>
+    <p style="margin: 10px 0;"><strong>Email:</strong> {{ recipient.email }}</p>
+
+    {% if recipient.comment %}
+    <h3 style="margin-top: 20px;">Комментарий:</h3>
+    <p style="white-space: pre-wrap; line-height: 1.6;">{{ recipient.comment }}</p>
+    {% endif %}
+</div>
+{% endblock %}

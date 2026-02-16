@@ -114,7 +114,13 @@
         <div class="admin-link">
             {% if user.is_authenticated %}
                 <a href="{% url 'mailings:statistics' %}">Моя статистика</a>
-                <a href="/admin/">Панель администратора</a>
+                <a href="{% url 'mailings:message_list' %}">Мои сообщения</a>
+                <a href="{% url 'mailings:recipient_list' %}">Мои клиенты</a>
+                <a href="{% url 'mailings:mailing_list' %}">Мои рассылки</a>
+                <a href="{% url 'users:profile' %}">Профиль</a>
+                {% if user.is_staff %}
+                    <a href="/admin/">Панель администратора</a>
+                {% endif %}
                 <a href="{% url 'users:logout' %}">Выход ({{ user.email }})</a>
             {% else %}
                 <a href="{% url 'users:login' %}">Вход</a>
