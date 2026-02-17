@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя статистика</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #764ba2;
+        }
+        .table-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .table-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .links {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Моя статистика</h1>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Всего рассылок</h3>
+                <div class="stat-value">{{ total_mailings }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Активных рассылок</h3>
+                <div class="stat-value">{{ active_mailings }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Отправлено писем</h3>
+                <div class="stat-value">{{ total_sent_messages }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Успешных попыток</h3>
+                <div class="stat-value">{{ successful_attempts }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Неуспешных попыток</h3>
+                <div class="stat-value">{{ failed_attempts }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Моих получателей</h3>
+                <div class="stat-value">{{ user_recipients }}</div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <h2>Последние рассылки</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Сообщение</th>
+                    <th>Начало</th>
+                    <th>Окончание</th>
+                    <th>Статус</th>
+                </tr>
+                {% for mailing in recent_mailings %}
+                <tr>
+                    <td>{{ mailing.id }}</td>
+                    <td>{{ mailing.message.subject }}</td>
+                    <td>{{ mailing.start_time|date:"d.m.Y H:i" }}</td>
+                    <td>{{ mailing.end_time|date:"d.m.Y H:i" }}</td>
+                    <td>{{ mailing.get_current_status }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Нет рассылок</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="table-card">
+            <h2>Последние попытки</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Рассылка</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th>Ответ</th>
+                </tr>
+                {% for attempt in recent_attempts %}
+                <tr>
+                    <td>{{ attempt.id }}</td>
+                    <td>{{ attempt.mailing.id }}</td>
+                    <td>{{ attempt.attempt_time|date:"d.m.Y H:i" }}</td>
+                    <td>{{ attempt.status }}</td>
+                    <td>{{ attempt.server_response|truncatewords:10 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">Нет попыток</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="links">
+            <a href="{% url 'mailings:home' %}" class="btn">Главная</a>
+            <a href="/admin/" class="btn">Админ-панель</a>
+        </div>
+    </div>
+</body>
+</html>

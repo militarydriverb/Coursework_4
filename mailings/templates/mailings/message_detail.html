@@ -1,0 +1,20 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Сообщение: {{ message.subject }}{% endblock %}
+{% block page_title %}Сообщение: {{ message.subject }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'mailings:message_list' %}" class="btn btn-secondary">← Назад к списку</a>
+    <a href="{% url 'mailings:message_update' message.pk %}" class="btn btn-primary">Изменить</a>
+    <a href="{% url 'mailings:message_delete' message.pk %}" class="btn btn-danger">Удалить</a>
+</div>
+
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
+    <h3>Тема письма:</h3>
+    <p style="font-size: 1.2rem; margin: 10px 0;">{{ message.subject }}</p>
+
+    <h3 style="margin-top: 20px;">Текст письма:</h3>
+    <p style="white-space: pre-wrap; line-height: 1.6;">{{ message.body }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Удалить сообщение{% endblock %}
+{% block page_title %}Удалить сообщение{% endblock %}
+
+{% block content %}
+<div style="background: #fff3cd; padding: 20px; border-radius: 5px; border: 1px solid #ffeaa7;">
+    <h3>Вы уверены, что хотите удалить сообщение?</h3>
+    <p style="margin: 15px 0;"><strong>Тема:</strong> {{ message.subject }}</p>
+    <p><strong>Текст:</strong> {{ message.body|truncatewords:20 }}</p>
+</div>
+
+<form method="post" style="margin-top: 20px;">
+    {% csrf_token %}
+    <div class="actions">
+        <button type="submit" class="btn btn-danger">Да, удалить</button>
+        <a href="{% url 'mailings:message_list' %}" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Рассылка #{{ mailing.id }}{% endblock %}
+{% block page_title %}Рассылка #{{ mailing.id }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'mailings:mailing_list' %}" class="btn btn-secondary">← Назад к списку</a>
+    <a href="{% url 'mailings:mailing_update' mailing.pk %}" class="btn btn-primary">Изменить</a>
+    <a href="{% url 'mailings:mailing_delete' mailing.pk %}" class="btn btn-danger">Удалить</a>
+</div>
+
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <h3>Информация о рассылке:</h3>
+
+    <p style="margin: 10px 0;"><strong>Статус:</strong>
+        <span style="padding: 5px 10px; border-radius: 3px;
+            {% if mailing.status == 'Запущена' %}background: #d4edda; color: #155724;
+            {% elif mailing.status == 'Завершена' %}background: #f8d7da; color: #721c24;
+            {% else %}background: #fff3cd; color: #856404;{% endif %}">
+            {{ mailing.status }}
+        </span>
+    </p>
+    <p style="margin: 10px 0;"><strong>Активна:</strong> {% if mailing.is_active %}Да{% else %}Нет{% endif %}</p>
+    <p style="margin: 10px 0;"><strong>Дата начала:</strong> {{ mailing.start_time|date:"d.m.Y H:i" }}</p>
+    <p style="margin: 10px 0;"><strong>Дата окончания:</strong> {{ mailing.end_time|date:"d.m.Y H:i" }}</p>
+
+    <h3 style="margin-top: 20px;">Сообщение:</h3>
+    <p style="margin: 10px 0;"><strong>Тема:</strong> {{ mailing.message.subject }}</p>
+    <p style="margin: 10px 0;"><strong>Текст:</strong></p>
+    <p style="white-space: pre-wrap; line-height: 1.6; background: white; padding: 10px; border-radius: 3px;">{{ mailing.message.body }}</p>
+
+    <h3 style="margin-top: 20px;">Получатели:</h3>
+    <ul style="margin: 10px 0;">
+        {% for recipient in mailing.recipients.all %}
+        <li>{{ recipient.full_name }} ({{ recipient.email }})</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if attempts %}
+<h3>Последние попытки рассылки:</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Дата и время</th>
+            <th>Статус</th>
+            <th>Ответ сервера</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attempt in attempts %}
+        <tr>
+            <td>{{ attempt.attempt_time|date:"d.m.Y H:i:s" }}</td>
+            <td>
+                <span style="padding: 5px 10px; border-radius: 3px;
+                    {% if attempt.status == 'Успешно' %}background: #d4edda; color: #155724;
+                    {% else %}background: #f8d7da; color: #721c24;{% endif %}">
+                    {{ attempt.status }}
+                </span>
+            </td>
+            <td>{{ attempt.server_response|truncatewords:10 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

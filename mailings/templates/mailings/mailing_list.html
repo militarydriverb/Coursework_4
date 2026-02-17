@@ -1,0 +1,52 @@
+{% extends 'mailings/base.html' %}
+
+{% block title %}Мои рассылки{% endblock %}
+{% block page_title %}Мои рассылки{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'mailings:mailing_create' %}" class="btn btn-success">+ Создать рассылку</a>
+</div>
+
+{% if mailings %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Статус</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Сообщение</th>
+            <th>Активна</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mailing in mailings %}
+        <tr>
+            <td>{{ mailing.id }}</td>
+            <td>
+                <span style="padding: 5px 10px; border-radius: 3px;
+                    {% if mailing.status == 'Запущена' %}background: #d4edda; color: #155724;
+                    {% elif mailing.status == 'Завершена' %}background: #f8d7da; color: #721c24;
+                    {% else %}background: #fff3cd; color: #856404;{% endif %}">
+                    {{ mailing.status }}
+                </span>
+            </td>
+            <td>{{ mailing.start_time|date:"d.m.Y H:i" }}</td>
+            <td>{{ mailing.end_time|date:"d.m.Y H:i" }}</td>
+            <td>{{ mailing.message.subject|truncatewords:5 }}</td>
+            <td>{% if mailing.is_active %}Да{% else %}Нет{% endif %}</td>
+            <td class="actions">
+                <a href="{% url 'mailings:mailing_detail' mailing.pk %}" class="btn btn-primary">Просмотр</a>
+                <a href="{% url 'mailings:mailing_update' mailing.pk %}" class="btn btn-secondary">Изменить</a>
+                <a href="{% url 'mailings:mailing_delete' mailing.pk %}" class="btn btn-danger">Удалить</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>У вас пока нет рассылок. Создайте первую рассылку!</p>
+{% endif %}
+{% endblock %}
